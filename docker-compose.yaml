@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  router:
+    image: alpine
+    container_name: router
+    command: sh /etc/router/nat.conf
+    volumes:
+      - ./01_router/nat.conf:/etc/router/nat.conf:ro
+    cap_add:
+      - NET_ADMIN
+    privileged: true
+    networks:
+      lan:
+        ipv4_address: 10.10.10.20
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  webserver:
+    image: nginx
+    container_name: webserver
+    networks:
+      lan:
+        ipv4_address: 10.10.10.10
+    restart: unless-stopped
+
+networks:
+  lan:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.10.0/24
