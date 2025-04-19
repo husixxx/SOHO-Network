@@ -1,0 +1,17 @@
+// Zóna pre mydomain.local
+zone "mydomain.local" {
+    type master;
+    file "/etc/bind/zones/db.mydomain.local";
+};
+
+// Reverzná zóna 10.10.10.x
+zone "10.10.10.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zones/db.10.10.10";
+};
+
+// RPZ – blokovací zóna
+zone "rpz" {
+    type master;
+    file "/etc/bind/zones/db.rpz";
+};

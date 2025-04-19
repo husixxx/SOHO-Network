@@ -1,0 +1,17 @@
+$TTL 3600
+
+$ORIGIN rpz.
+@   IN SOA  rpz. root.rpz. (
+        2025041901  ; serial
+        3600        ; refresh
+        1800        ; retry
+        604800      ; expire
+        86400       ; minimum
+)
+    IN NS   rpz
+rpz IN A    127.0.0.1
+
+$ORIGIN .
+
+bad.example.com.      IN CNAME   .
+ads.tracker.local.    IN CNAME   .

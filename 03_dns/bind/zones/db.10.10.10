@@ -1,0 +1,17 @@
+$TTL 3600
+@   IN SOA  ns.mydomain.local. admin.mydomain.local. (
+        2025041901
+        3600
+        1800
+        604800
+        86400
+)
+    IN NS ns.mydomain.local.
+    
+20  IN PTR router.mydomain.local.
+5   IN PTR ns.mydomain.local.
+2   IN PTR proxy.mydomain.local.
+10  IN PTR app.mydomain.local.
+15  IN PTR mail.mydomain.local.
+30  IN PTR vpn.mydomain.local.
+40  IN PTR aaa.mydomain.local.

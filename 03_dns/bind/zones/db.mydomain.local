@@ -1,0 +1,17 @@
+$TTL 3600
+@   IN SOA  ns.mydomain.local. admin.mydomain.local. (
+        2025041901  ; serial YYYYMMDDnn
+        3600        ; refresh
+        1800        ; retry
+        604800      ; expire
+        86400       ; minimum
+)
+    IN NS   ns.mydomain.local.
+ns  IN A    10.10.10.5
+
+router  IN A 10.10.10.20
+proxy   IN A 10.10.10.2
+app     IN A 10.10.10.10
+mail    IN A 10.10.10.15
+vpn     IN A 10.10.10.30
+aaa     IN A 10.10.10.40
