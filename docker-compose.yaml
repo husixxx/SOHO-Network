@@ -14,7 +14,15 @@ services:
       lan:
         ipv4_address: 10.10.10.20
     ports:
-      - "8080:8080"
+      - "80:80"     # HTTP
+      - "443:443"   # HTTPS
+      - "1053:1053/udp" # DNS
+      - "1053:1053/tcp" # DNS
+      - "25:25"     # SMTP
+      - "587:587"   # Submission
+      - "143:143"   # IMAP
+      - "51869:51869/udp"
+      - "51869:51869/tcp"
     restart: unless-stopped
 
   reverse-proxy:
@@ -23,9 +31,9 @@ services:
     networks:
       lan:
         ipv4_address: 10.10.10.2
-    ports:
-      - "80:80"
-      - "443:443"
+    # ports:
+    #   - "80:80"
+    #   - "443:443"
     volumes:
       - ./02_reverse-proxy/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./02_reverse-proxy/certs:/etc/nginx/certs:ro
@@ -38,9 +46,9 @@ services:
     networks:
       lan:
         ipv4_address: 10.10.10.5
-    ports:
-      - "1053:53/udp"
-      - "1053:53/tcp"
+    # ports:
+    #   - "1053:53/udp"
+    #   - "1053:53/tcp"
     volumes:
       - ./03_dns/bind/named.conf.options:/etc/bind/named.conf.options:ro
       - ./03_dns/bind/named.conf.local:/etc/bind/named.conf.local:ro
@@ -53,6 +61,56 @@ services:
     networks:
       lan:
         ipv4_address: 10.10.10.10
+    restart: unless-stopped
+
+  mailserver:
+    image: mailserver/docker-mailserver:latest
+    container_name: mailserver
+    hostname: "mail"
+    domainname: "mydomain.local"
+    env_file:
+      - ./04_mailserver/.env
+    # ports:
+    #   - "25:25"     # SMTP
+    #   - "587:587"   # Submission
+    #   - "143:143"   # IMAP
+    volumes:
+      - ./04_mailserver/config/:/tmp/docker-mailserver/:rw
+      - ./04_mailserver/maildata/:/var/mail/:rw
+      - ./04_mailserver/state/:/var/mail-state/:rw
+    networks:
+      lan:
+        ipv4_address: 10.10.10.15 
+    restart: unless-stopped
+
+
+  vpn:
+    image: linuxserver/wireguard
+    container_name: vpn
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    privileged: true
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Prague
+      # interná sieť, do ktorej sa pripoja klienti
+      - SERVERURL=localhost        # použije sa pre endpoint v klientských konfigoch
+      - SERVERPORT=51869
+      - PEERS=1                    # vygeneruje jeden klientský profil
+      - PEERDNS=10.10.10.5         # náš interný DNS server
+      - INTERNAL_SUBNET=10.200.200.0/24
+    volumes:
+      - ./06_vpn/config:/config
+    # ports:
+    #   - "51820:51820/udp"
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    networks:
+      lan:
+        ipv4_address: 10.10.10.30
     restart: unless-stopped
 
 networks:
