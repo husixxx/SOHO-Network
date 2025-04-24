@@ -22,7 +22,7 @@ services:
       - "587:587"   # Submission
       - "143:143"   # IMAP
       - "51869:51869/udp"
-      - "51869:51869/tcp"
+      # - "51869:51869/tcp"
     restart: unless-stopped
 
   reverse-proxy:
@@ -95,16 +95,13 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Prague
-      # interná sieť, do ktorej sa pripoja klienti
-      - SERVERURL=localhost        # použije sa pre endpoint v klientských konfigoch
+      - SERVERURL=172.17.158.109   
       - SERVERPORT=51869
-      - PEERS=1                    # vygeneruje jeden klientský profil
-      - PEERDNS=10.10.10.5         # náš interný DNS server
+      - PEERS=1                    
+      - PEERDNS=10.10.10.5        
       - INTERNAL_SUBNET=10.200.200.0/24
     volumes:
       - ./06_vpn/config:/config
-    # ports:
-    #   - "51820:51820/udp"
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv4.ip_forward=1
