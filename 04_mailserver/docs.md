@@ -1,1 +1,4 @@
-**1.** openssl setup needed.
+**SETUP**
+- 1. openssl setup needed.
+**TESTING**
+- ...
