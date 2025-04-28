@@ -6,12 +6,17 @@ RUN apt-get update \
       iptables \
       openssh-server \
       libpam-radius-auth \
+      fail2ban \
+      rsyslog \
  && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -s /bin/bash test \
 && echo 'test:test' | chpasswd
 # prep dirs
 RUN mkdir -p /etc/router /var/run/sshd
+
+
+
 
 # copy your NAT and RADIUS‐shared‐secret files
 COPY nat.conf             /etc/router/nat.conf
@@ -38,8 +43,16 @@ RUN sed -i \
 # generate host keys
 RUN ssh-keygen -A
 
+# 4) nakonfigurovat rsyslog, aby logoval do /var/log/auth.log
+RUN sed -i 's/#auth,authpriv.*\/var\/log\/auth.log/auth,authpriv.*\/var\/log\/auth.log/' /etc/rsyslog.conf
+
+# setup fail2ban
+COPY fail2ban/jail.local /etc/fail2ban/jail.local
+
 # start NAT + sshd
 CMD sh -c "\
-      sh /etc/router/nat.conf & \
-      exec /usr/sbin/sshd -D \
+        sh /etc/router/nat.conf & \
+        rsyslogd -n & \
+        fail2ban-server -xf & \
+        exec /usr/sbin/sshd -D \
     "
