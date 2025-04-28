@@ -14,4 +14,4 @@ proxy   IN A 10.10.10.2
 app     IN A 10.10.10.10
 mail    IN A 10.10.10.15
 vpn     IN A 10.10.10.30
-aaa     IN A 10.10.10.40
+aaa     IN A 10.10.10.7

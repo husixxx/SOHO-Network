@@ -14,4 +14,4 @@ $TTL 3600
 10  IN PTR app.mydomain.local.
 15  IN PTR mail.mydomain.local.
 30  IN PTR vpn.mydomain.local.
-40  IN PTR aaa.mydomain.local.
+7  IN PTR aaa.mydomain.local.
