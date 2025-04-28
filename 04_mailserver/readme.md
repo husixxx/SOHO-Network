@@ -29,12 +29,15 @@ All emails are stored persistently inside the `maildata/` volume, even if the co
 
 - Ports 25, 587, 143 must be forwarded from the router to the mailserver (internal IP `10.10.10.15`).
 - Proper configuration of DNS MX records if real domain was used (in this case internal DNS).
-- SSL certificates can be optionally generated for encrypted submission and IMAP.
-
+- SSL certificates must be generated for encrypted submission and IMAP.
+```bash
+openssl req -x509 -nodes -newkey rsa:2048 -keyout privkey.pem -out fullchain.pem -days 365
+```
 ### Important configs
 
 - `config/` contains override files for fine-tuning Postfix, Dovecot, and other services. Also in `/postfix-accounts.cf` there defined authorized users in this server.
 - `.env` contains user account setup, mail domain, SSL settings, and restrictions.
+
 
 ## Testing
 
@@ -48,9 +51,20 @@ telnet localhost 587
 telnet localhost 143
 ```
 First two commands should return `220` SMTP greetings for `STARTTLS`
+To try sending secured email:
 
-To try sending secured email 
 ```bash
 swaks --to husic@mydomain.local --from anotheruser@mydomain.local --server localhost --port 587 --auth LOGIN --auth
 -user husic@mydomain.local --auth-password Heslo123 --tls
-``` Output after establishing connection should be something like:  ....~> This is a test mailing....
+```
+- Output after establishing connection should be something like:  ....~> This is a test mailing....
+
+Then try fetching the email with:
+```bash
+openssl s_client -connect localhost:143 -starttls imap
+a LOGIN husic@mydomain.local Heslo123
+a SELECT INBOX
+a FETCH 1 BODY[HEADER.FIELDS (SUBJECT)]
+a LOGOUT
+```
+
