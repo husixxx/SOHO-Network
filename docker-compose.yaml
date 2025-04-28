@@ -2,11 +2,8 @@ version: '3.9'
 
 services:
   router:
-    image: alpine
+    build: ./01_router
     container_name: router
-    command: sh /etc/router/nat.conf
-    volumes:
-      - ./01_router/nat.conf:/etc/router/nat.conf:ro
     cap_add:
       - NET_ADMIN
     privileged: true
@@ -21,8 +18,10 @@ services:
       - "25:25"     # SMTP
       - "587:587"   # Submission
       - "143:143"   # IMAP
-      - "51869:51869/udp"
-      # - "51869:51869/tcp"
+      - "666:666/udp" # VPN / change
+      - "1812:1812/udp" # RADIUS
+      - "1813:1813/udp" # RADIUS accounting
+      - "22:22"   # SSH
     restart: unless-stopped
 
   reverse-proxy:
@@ -31,9 +30,6 @@ services:
     networks:
       lan:
         ipv4_address: 10.10.10.2
-    # ports:
-    #   - "80:80"
-    #   - "443:443"
     volumes:
       - ./02_reverse-proxy/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./02_reverse-proxy/certs:/etc/nginx/certs:ro
@@ -46,9 +42,6 @@ services:
     networks:
       lan:
         ipv4_address: 10.10.10.5
-    # ports:
-    #   - "1053:53/udp"
-    #   - "1053:53/tcp"
     volumes:
       - ./03_dns/bind/named.conf.options:/etc/bind/named.conf.options:ro
       - ./03_dns/bind/named.conf.local:/etc/bind/named.conf.local:ro
@@ -70,10 +63,6 @@ services:
     domainname: "mydomain.local"
     env_file:
       - ./04_mailserver/.env
-    # ports:
-    #   - "25:25"     # SMTP
-    #   - "587:587"   # Submission
-    #   - "143:143"   # IMAP
     volumes:
       - ./04_mailserver/config/:/tmp/docker-mailserver/:rw
       - ./04_mailserver/maildata/:/var/mail/:rw
@@ -96,7 +85,7 @@ services:
       - PGID=1000
       - TZ=Europe/Prague
       - SERVERURL=172.17.158.109   
-      - SERVERPORT=51869
+      - SERVERPORT=51820 # VARIABLE
       - PEERS=1                    
       - PEERDNS=10.10.10.5        
       - INTERNAL_SUBNET=10.200.200.0/24
@@ -109,6 +98,20 @@ services:
       lan:
         ipv4_address: 10.10.10.30
     restart: unless-stopped
+
+  aaa:
+    image: freeradius/freeradius-server:latest
+    container_name: aaa
+    command: ["radiusd","-X"] # debug mode
+    networks:
+      lan:
+        ipv4_address: 10.10.10.7
+    volumes:
+      - ./07_aaa/clients.conf:/etc/raddb/clients.conf:ro
+      - ./07_aaa/users:/etc/raddb/mods-config/files/authorize:ro
+    restart: unless-stopped
+
+    
 
 networks:
   lan:
