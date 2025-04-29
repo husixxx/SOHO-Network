@@ -36,7 +36,7 @@ echo "test mail" | nc localhost 25
 ```bash
 ssh test@localhost
 ```
-Current password is `test25`, after its insertion you should be authorized and connected, in the `aaa` container should be logs about proccessing authorization request.
+Current password in `FreeRadius` is `test25`, but in the original filesystem of the container it is `test` only. After its insertion you should be authorized and connected, in the `aaa` container should be logs about proccessing authorization request.
 
 After inserting wrong password for `3` times, source IP is banned.
 To see logs about banned IP`s run:
