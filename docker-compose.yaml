@@ -18,7 +18,7 @@ services:
       - "25:25"     # SMTP
       - "587:587"   # Submission
       - "143:143"   # IMAP
-      - "666:666/udp" # VPN / change
+      - "666/udp" # VPN / change
       - "1812:1812/udp" # RADIUS
       - "1813:1813/udp" # RADIUS accounting
       - "22:22"   # SSH
@@ -84,8 +84,8 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Prague
-      - SERVERURL=172.17.158.109   
-      - SERVERPORT=51820 # VARIABLE
+      - SERVERURL=localhost 
+      - SERVERPORT=666 # VARIABLE
       - PEERS=1                    
       - PEERDNS=10.10.10.5        
       - INTERNAL_SUBNET=10.200.200.0/24
